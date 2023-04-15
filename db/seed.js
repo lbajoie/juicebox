@@ -1,9 +1,8 @@
  const {
      client,
-     getAllUsers
+     getAllUsers,
+     createUser
   } = require('./index');
-
-
 
 
 async function dropTables() {
@@ -30,12 +29,32 @@ async function createTables() {
             password varchar(255) NOT NULL
         );
      `)
-     console.log("Finished building tables!!")
+        console.log("Finished building tables!!")
     } catch (error) {
         console.log("Error building tables!!")
         throw error;
     }
 }
+
+async function createInitialUsers() {
+    try {
+        console.log("Starting to create users...");
+        
+    await createUser({ username: 'albert', password: 'bertie99' });
+    await createUser({ username: 'sandra', password: '2sandy4me' });
+    await createUser({ username: 'glamgal', password: 'soglam' });
+
+        console.log("Finished creating users!");
+    } catch(error) {
+        console.error("Error creating users!");
+        throw error;
+    }
+}
+
+
+
+
+
 
 async function rebuildDB() {
     try {
@@ -43,27 +62,35 @@ async function rebuildDB() {
 
         await dropTables();
         await createTables();
+        await createInitialUsers();
     } catch (error) {
-        console.error(error);
+        console.error('Error rebuilding DB!');
         throw error;
     } 
 }
 
 async function testDB() { 
     try {
-        client.connect();
-        const result = await client.query('SELECT * FROM users;');
-        console.log(result)
+        console.log("Starting to test database...")
+
+        const users = await getAllUsers();
+        
+        console.log("getAllUsers:", users);
+
+
+        console.log("Finished database test!!!")
+
+    
+
+        
     
 } catch (error) {
     console.error(error);
 
-} finally {
-    client.end();
     }   
 }
 
 rebuildDB()
     .then(testDB)
     .catch(console.error)
-    .finally(()=>client.end());Save-Script
+    .finally(()=>client.end());
